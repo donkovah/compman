@@ -3,8 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var helmet = require('helmet')
-
+var helmet = require('helmet');
+var ejs = require('ejs');
 
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
@@ -15,11 +15,11 @@ var usersRouter = require('./routes/users');
 var app = express();
 
 var options = {
-  host: 'localhost',
-  port: 3306,
-  user: 'session_test',
-  password: 'password',
-  database: 'session_test'
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DBNAME
 };
 
 var sessionStore = new MySQLStore(options);
@@ -34,7 +34,7 @@ app.use(session({
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+app.set('view engine', ejs);
 
 app.use(logger('dev'));
 app.use(express.json());
