@@ -4,13 +4,16 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var helmet = require('helmet');
-var ejs = require('ejs');
+require('dotenv').config();
 
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+
+const models = require('./db/models');
+
 
 var app = express();
 
@@ -19,7 +22,7 @@ var options = {
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DBNAME
+  database: process.env.DB_NAME
 };
 
 var sessionStore = new MySQLStore(options);
@@ -32,9 +35,18 @@ app.use(session({
   saveUninitialized: false
 }));
 
+models.sequelize
+  .sync()
+  .then(() => {
+    console.log('Successfully connected to default database');
+  })
+  .catch((err) => {
+    console.log(`Error connecting to database: ${err}`);
+  });
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', ejs);
+app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
